@@ -1,17 +1,51 @@
 import { Button } from "@/components/ui/button";
-import { nextQuestion } from "@/redux/features/quizSlice";
-import { useAppDispatch } from "@/redux/hook";
+import {  completeQuiz, nextQuestion, previousQuestion } from "@/redux/features/quizSlice";
+import { useAppDispatch, useAppSelector } from "@/redux/hook";
 
 export default function QuizControls() {
-const dispatch = useAppDispatch()
+  const { currentQuestionIndex, userAnswer } = useAppSelector(
+    (state) => state.quiz
+  );
+  const dispatch = useAppDispatch();
+  const isAnswerSelected = userAnswer[currentQuestionIndex] !== null;
+  const handleNext = () => {
+    if (isAnswerSelected) {
+      dispatch(nextQuestion());
+    }
+  };
+  const handlePrevious = () => {
+    dispatch(previousQuestion());
+  };
+  // Handle the "Complete Quiz" button click
+  const handleCompleteQuiz = () => {
+    dispatch(completeQuiz());
+  };
+  const isCompleteEnabled =
+    isAnswerSelected || currentQuestionIndex !== questions.length - 1;
 
-  const handleNext = ()=>{
-  dispatch(nextQuestion())
-  }
   return (
-    <div className="flex justify-between mt-4 space-x-4">
-      <Button> previous </Button>
-      <Button onClick={handleNext}> next </Button>
+  <div className="flex justify-between mt-4 space-x-4">
+      {/* Previous Button */}
+      <Button
+        onClick={handlePrevious}
+        disabled={currentQuestionIndex === 0 || quizCompleted}
+      >
+        Previous
+      </Button>
+
+      {/* Next Button */}
+      {currentQuestionIndex < questions.length - 1 && !quizComplete && (
+        <Button onClick={handleNext} disabled={!isAnswerSelected}>
+          Next
+        </Button>
+      )}
+
+      {/* Complete Quiz Button */}
+      {currentQuestionIndex === questions.length - 1 && !quizComplete && (
+        <Button onClick={handleCompleteQuiz} disabled={!isCompleteEnabled}>
+          Complete Quiz
+        </Button>
+      )}
     </div>
   );
 }
